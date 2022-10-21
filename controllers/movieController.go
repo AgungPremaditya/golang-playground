@@ -8,7 +8,7 @@ import (
 )
 
 type Movie struct {
-	MovieID     string `json:"car_id"`
+	MovieID     string `json:"movie_id"`
 	Title       string `json:"title"`
 	Rating      int    `json:"rating"`
 	Description string `json:"desc"`
@@ -57,4 +57,60 @@ func GetMovie(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, movieData)
+}
+
+func UpdateMovie(ctx *gin.Context) {
+	id := ctx.Param("id")
+	condition := false
+	var movieData Movie
+
+	if err := ctx.ShouldBindJSON(&movieData); err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	for i, movie := range movies {
+		if id == movie.MovieID {
+			condition = true
+			movies[i] = movieData
+			movies[i].MovieID = id
+			break
+		}
+	}
+
+	if !condition {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "Data not found",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, movieData)
+}
+
+func DeleteMovie(ctx *gin.Context) {
+	id := ctx.Param("id")
+	condition := false
+	var index int
+
+	for i, movie := range movies {
+		if id == movie.MovieID {
+			condition = true
+			index = i
+			break
+		}
+	}
+
+	if !condition {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "Data not found",
+		})
+		return
+	}
+
+	copy(movies[index:], movies[index+1:])
+	movies[len(movies)-1] = Movie{}
+	movies = movies[:len(movies)-1]
+
+	ctx.JSON(http.StatusNoContent, gin.H{})
 }
