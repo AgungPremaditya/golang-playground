@@ -35,3 +35,26 @@ func CreateMovie(ctx *gin.Context) {
 func IndexMovie(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, movies)
 }
+
+func GetMovie(ctx *gin.Context) {
+	id := ctx.Param("id")
+	condition := false
+	var movieData Movie
+
+	for i, movie := range movies {
+		if movie.MovieID == id {
+			condition = true
+			movieData = movies[i]
+			break
+		}
+	}
+
+	if !condition {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "Data not found",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, movieData)
+}
