@@ -1,116 +1,124 @@
 package controllers
 
 import (
-	"fmt"
+	"log"
+	"movies-golang-api/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-type Movie struct {
-	MovieID     string `json:"movie_id"`
-	Title       string `json:"title"`
-	Rating      int    `json:"rating"`
-	Description string `json:"desc"`
-}
-
-var movies = []Movie{}
-
 func CreateMovie(ctx *gin.Context) {
-	var newMovie Movie
+	var movie models.Movie
 
-	if err := ctx.ShouldBindJSON(&newMovie); err != nil {
+	if err := ctx.ShouldBindJSON(&movie); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	newMovie.MovieID = fmt.Sprintf("c%d", len(movies)+1)
-	movies = append(movies, newMovie)
+	script := `INSERT INTO movie (title, rating, details) VALUES (?, ?, ?)`
 
-	ctx.JSON(http.StatusCreated, newMovie)
+	rows, err := initDb().Exec(script, movie.Title, movie.Rating, movie.Description)
+	checkError(err, "Insert Failed")
+	lastId, _ := rows.LastInsertId()
+	movie.MovieID = lastId
+
+	ctx.JSON(http.StatusCreated, movie)
 }
 
 func IndexMovie(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, movies)
+	var movies models.Movie
+	var result []models.Movie
+
+	script := `SELECT * FROM movie`
+	rows, err := initDb().Query(script)
+	checkError(err, "Get Index Failed")
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&movies.MovieID, &movies.Title, &movies.Rating, &movies.Description)
+		if err != nil {
+			log.Fatal(err)
+		}
+		result = append(result, movies)
+	}
+
+	ctx.JSON(http.StatusOK, result)
 }
 
 func GetMovie(ctx *gin.Context) {
-	id := ctx.Param("id")
-	condition := false
-	var movieData Movie
+	var movies models.Movie
 
-	for i, movie := range movies {
-		if movie.MovieID == id {
-			condition = true
-			movieData = movies[i]
-			break
+	script := `SELECT * FROM movie`
+	rows, err := initDb().Query(script)
+	checkError(err, "Get Index Failed")
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&movies.MovieID, &movies.Title, &movies.Rating, &movies.Description)
+		if err != nil {
+			log.Fatal(err)
 		}
 	}
 
-	if !condition {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"error": "Data not found",
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, movieData)
+	ctx.JSON(http.StatusOK, movies)
 }
 
-func UpdateMovie(ctx *gin.Context) {
-	id := ctx.Param("id")
-	condition := false
-	var movieData Movie
+// func UpdateMovie(ctx *gin.Context) {
+// 	id := ctx.Param("id")
+// 	condition := false
+// 	var movieData Movie
 
-	if err := ctx.ShouldBindJSON(&movieData); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
+// 	if err := ctx.ShouldBindJSON(&movieData); err != nil {
+// 		ctx.AbortWithError(http.StatusBadRequest, err)
+// 		return
+// 	}
 
-	for i, movie := range movies {
-		if id == movie.MovieID {
-			condition = true
-			movies[i] = movieData
-			movies[i].MovieID = id
-			break
-		}
-	}
+// 	for i, movie := range movies {
+// 		if id == movie.MovieID {
+// 			condition = true
+// 			movies[i] = movieData
+// 			movies[i].MovieID = id
+// 			break
+// 		}
+// 	}
 
-	if !condition {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"error": "Data not found",
-		})
-		return
-	}
+// 	if !condition {
+// 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+// 			"error": "Data not found",
+// 		})
+// 		return
+// 	}
 
-	ctx.JSON(http.StatusOK, movieData)
-}
+// 	ctx.JSON(http.StatusOK, movieData)
+// }
 
-func DeleteMovie(ctx *gin.Context) {
-	id := ctx.Param("id")
-	condition := false
-	var index int
+// func DeleteMovie(ctx *gin.Context) {
+// 	id := ctx.Param("id")
+// 	condition := false
+// 	var index int
 
-	for i, movie := range movies {
-		if id == movie.MovieID {
-			condition = true
-			index = i
-			break
-		}
-	}
+// 	for i, movie := range movies {
+// 		if id == movie.MovieID {
+// 			condition = true
+// 			index = i
+// 			break
+// 		}
+// 	}
 
-	if !condition {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"error": "Data not found",
-		})
-		return
-	}
+// 	if !condition {
+// 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+// 			"error": "Data not found",
+// 		})
+// 		return
+// 	}
 
-	copy(movies[index:], movies[index+1:])
-	movies[len(movies)-1] = Movie{}
-	movies = movies[:len(movies)-1]
+// 	copy(movies[index:], movies[index+1:])
+// 	movies[len(movies)-1] = Movie{}
+// 	movies = movies[:len(movies)-1]
 
-	ctx.JSON(http.StatusNoContent, gin.H{})
-}
+// 	ctx.JSON(http.StatusNoContent, gin.H{})
+// }
