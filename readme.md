@@ -21,3 +21,21 @@ Then you can migrate your databases using command below:
 ```sh
 migrate -database "mysql://user:password@tcp(localhost:3306)/movie_api" -path db/migrations up
 ```
+
+For Running this applications you can run command below:
+
+```sh
+go run main.go
+```
+
+or you can use [air](https://github.com/cosmtrek/air) for hot-reload. You can use air with installing it on your $gopath/bin. For installing using go, you can follow command below:
+
+```sh
+go install github.com/cosmtrek/air@latest
+```
+
+Then for run your aplications use this command below in your golang application directory. **Please make sure your $gopath/bin is registered on your local environments**
+
+```sh
+air
+```
