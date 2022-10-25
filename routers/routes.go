@@ -14,6 +14,7 @@ func StartServer() *gin.Engine {
 	})
 
 	MovieRoutes(router)
+	CategoryRoutes(router)
 
 	return router
 }
