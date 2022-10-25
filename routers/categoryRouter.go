@@ -11,5 +11,5 @@ func CategoryRoutes(router *gin.Engine) {
 	router.GET("/categories", controllers.IndexCategory)
 	router.GET("/categories/:id", controllers.GetCategory)
 	router.PUT("/categories/:id", controllers.UpdateCategory)
-	router.DELETE("movies/:id", controllers.DeleteCategory)
+	router.DELETE("/categories/:id", controllers.DeleteCategory)
 }
