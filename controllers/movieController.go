@@ -4,6 +4,7 @@ import (
 	"log"
 	"movies-golang-api/models"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -50,51 +51,46 @@ func IndexMovie(ctx *gin.Context) {
 }
 
 func GetMovie(ctx *gin.Context) {
-	var movies models.Movie
+	var movie models.Movie
+	id := ctx.Param("id")
 
-	script := `SELECT * FROM movie`
-	rows, err := initDb().Query(script)
+	script := `SELECT * FROM movie WHERE id = ?`
+	rows, err := initDb().Query(script, id)
 	checkError(err, "Get Index Failed")
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&movies.MovieID, &movies.Title, &movies.Rating, &movies.Description)
+		err := rows.Scan(&movie.MovieID, &movie.Title, &movie.Rating, &movie.Description)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	ctx.JSON(http.StatusOK, movies)
+	ctx.JSON(http.StatusOK, movie)
 }
 
-// func UpdateMovie(ctx *gin.Context) {
-// 	id := ctx.Param("id")
-// 	condition := false
-// 	var movieData Movie
+func UpdateMovie(ctx *gin.Context) {
+	var movie models.Movie
+	id := ctx.Param("id")
 
-// 	if err := ctx.ShouldBindJSON(&movieData); err != nil {
-// 		ctx.AbortWithError(http.StatusBadRequest, err)
-// 		return
-// 	}
+	if err := ctx.ShouldBindJSON(&movie); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-// 	for i, movie := range movies {
-// 		if id == movie.MovieID {
-// 			condition = true
-// 			movies[i] = movieData
-// 			movies[i].MovieID = id
-// 			break
-// 		}
-// 	}
+	script := `UPDATE movie SET movie.title = ?, movie.rating = ?, movie.details = ? WHERE id = ?`
+	rows, err := initDb().Query(script, movie.Title, movie.Rating, movie.Description, id)
+	checkError(err, "Get Index Failed")
+	defer rows.Close()
 
-// 	if !condition {
-// 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-// 			"error": "Data not found",
-// 		})
-// 		return
-// 	}
+	movieId, err := strconv.Atoi(id)
+	checkError(err, "Convert Failed")
+	movie.MovieID = int64(movieId)
 
-// 	ctx.JSON(http.StatusOK, movieData)
-// }
+	ctx.JSON(http.StatusOK, movie)
+}
 
 // func DeleteMovie(ctx *gin.Context) {
 // 	id := ctx.Param("id")
