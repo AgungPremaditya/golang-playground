@@ -22,7 +22,7 @@ func CreateMovie(ctx *gin.Context) {
 		return
 	}
 
-	script := `INSERT INTO movie (title, rating, details) VALUES (?, ?, ?)`
+	script := `INSERT INTO movies (title, rating, details) VALUES (?, ?, ?)`
 
 	rows, err := initDb().Exec(script, movie.Title, movie.Rating, movie.Description)
 	checkError(err, "Insert Failed")
@@ -36,7 +36,7 @@ func IndexMovie(ctx *gin.Context) {
 	var movies models.Movie
 	var result []models.Movie
 
-	script := `SELECT * FROM movie`
+	script := `SELECT * FROM movies`
 	rows, err := initDb().Query(script)
 	checkError(err, "Get Index Failed")
 	defer rows.Close()
@@ -61,7 +61,7 @@ func GetMovie(ctx *gin.Context) {
 	checkError(error, "Convert Failed")
 
 	// Find data with id
-	script := fmt.Sprintf(`SELECT * FROM movie WHERE id = %d`, movieId)
+	script := fmt.Sprintf(`SELECT * FROM movies WHERE id = %d`, movieId)
 	rows := initDb().QueryRow(script)
 	err := rows.Scan(&movie.MovieID, &movie.Title, &movie.Rating, &movie.Description)
 
@@ -104,7 +104,7 @@ func UpdateMovie(ctx *gin.Context) {
 		})
 	} else {
 		// If there is match data then update these data
-		script := `UPDATE movie SET movie.title = ?, movie.rating = ?, movie.details = ? WHERE id = ?`
+		script := `UPDATE movies SET movies.title = ?, movies.rating = ?, movies.details = ? WHERE id = ?`
 		rows, err := initDb().Query(script, movie.Title, movie.Rating, movie.Description, movieId)
 		checkError(err, "Query Failed")
 		defer rows.Close()
@@ -122,7 +122,7 @@ func DeleteMovie(ctx *gin.Context) {
 
 	// Checking is there any data with these id
 	var resultId int
-	script := fmt.Sprintf(`SELECT id FROM movie WHERE id = %d`, movieId)
+	script := fmt.Sprintf(`SELECT id FROM movies WHERE id = %d`, movieId)
 	rows := initDb().QueryRow(script)
 	err := rows.Scan(&resultId)
 
@@ -133,7 +133,7 @@ func DeleteMovie(ctx *gin.Context) {
 		})
 	} else {
 		// If there is match data then update these data
-		script := `DELETE FROM movie WHERE id = ?`
+		script := `DELETE FROM movies WHERE id = ?`
 		rows, err := initDb().Exec(script, movieId)
 		checkError(err, "Query Failed")
 		defer rows.RowsAffected()
