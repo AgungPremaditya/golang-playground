@@ -34,8 +34,10 @@ or you can use [air](https://github.com/cosmtrek/air) for hot-reload. You can us
 go install github.com/cosmtrek/air@latest
 ```
 
-Then for run your aplications use this command below in your golang application directory. **Please make sure your $gopath/bin is registered on your local environments**
+Then for run your aplications in hot-reload mode use this command below in your golang application directory.
 
 ```sh
 air
 ```
+
+**Notes : Please make sure your $gopath/bin is registered on your local environments**
