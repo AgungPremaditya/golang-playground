@@ -5,4 +5,5 @@ type Movie struct {
 	Title       string `json:"title"`
 	Rating      int    `json:"rating"`
 	Description string `json:"desc"`
+	CategoryID  int64  `json:"category_id"`
 }
