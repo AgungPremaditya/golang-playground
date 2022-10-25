@@ -1,5 +1,5 @@
 CREATE TABLE categories(
-  id serial primary key,
-  category_name varchar(255) not null,
-  details text
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  category_name VARCHAR(255) NOT NULL,
+  details TEXT
 );
