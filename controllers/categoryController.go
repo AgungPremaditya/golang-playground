@@ -3,8 +3,8 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"movies-golang-api/models"
+	"movies-golang-api/repository"
 	"net/http"
 	"strconv"
 
@@ -21,57 +21,33 @@ func CreateCategory(ctx *gin.Context) {
 		return
 	}
 
-	script := `INSERT INTO categories (category_name, details) VALUES (?, ?)`
+	result := repository.CreateCategoryQuery(category)
 
-	rows, err := initDb().Exec(script, category.CategoryName, category.Details)
-	checkError(err, "Insert Failed")
-	lastId, _ := rows.LastInsertId()
-	category.CategoryID = lastId
-
-	ctx.JSON(http.StatusCreated, category)
+	ctx.JSON(http.StatusCreated, result)
 }
 
 func IndexCategory(ctx *gin.Context) {
-	var categories models.Category
-	var result []models.Category
-
-	script := `SELECT * FROM categories`
-	rows, err := initDb().Query(script)
-	checkError(err, "Get Index Failed")
-	defer rows.Close()
-
-	for rows.Next() {
-		err := rows.Scan(&categories.CategoryID, &categories.CategoryName, &categories.Details)
-		if err != nil {
-			log.Fatal(err)
-		}
-		result = append(result, categories)
-	}
+	result := repository.IndexCategoryQuery()
 
 	ctx.JSON(http.StatusOK, result)
 }
 
 func GetCategory(ctx *gin.Context) {
-	var category models.Category
 
 	// Convert params id from string to int
 	id := ctx.Param("id")
 	categoryId, error := strconv.Atoi(id)
 	checkError(error, "Convert Failed")
 
-	// Find data with id
-	script := fmt.Sprintf(`SELECT * FROM categories WHERE id = %d`, categoryId)
-	rows := initDb().QueryRow(script)
-	err := rows.Scan(&category.CategoryID, &category.CategoryName, &category.Details)
+	result := repository.GetCategoryQuery(categoryId)
 
-	// If there isn't match id return 404
-	if err != nil && err == sql.ErrNoRows {
+	// If result not found return 404
+	if result.CategoryID == 0 {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "data not found",
 		})
 	} else {
-		// If there is match id return data
-		ctx.JSON(http.StatusOK, category)
+		ctx.JSON(http.StatusOK, result)
 	}
 }
 
