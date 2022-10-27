@@ -7,3 +7,9 @@ type Movie struct {
 	Description string `json:"desc"`
 	CategoryID  int64  `json:"category_id"`
 }
+
+type MovieWithCategory struct {
+	Movie
+	CategoryName    string `json:"category_name"`
+	CategoryDetails string `json:"category_details"`
+}
