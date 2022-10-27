@@ -59,3 +59,27 @@ func GetCategoryQuery(id int) models.Category {
 
 	return result
 }
+
+func UpdateCategoryQuery(id int, category models.Category) models.Category {
+	var result models.Category
+
+	script := `UPDATE categories SET categories.category_name = ?, categories.details = ? WHERE id = ?`
+	rows, err := database.InitDb().Exec(script, category.CategoryName, category.Details, id)
+	database.CheckError(err, "Query Failed")
+	affectedRowId, _ := rows.RowsAffected()
+
+	result.CategoryID = int64(affectedRowId)
+	result.CategoryName = category.CategoryName
+	result.Details = category.Details
+
+	return result
+}
+
+func DeleteCategoryQuery(id int) int64 {
+	script := `DELETE FROM categories WHERE id = ?`
+	rows, err := database.InitDb().Exec(script, id)
+	database.CheckError(err, "Query Failed")
+	affectedRowId, _ := rows.RowsAffected()
+
+	return affectedRowId
+}

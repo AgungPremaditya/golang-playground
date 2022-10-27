@@ -1,12 +1,10 @@
 package controllers
 
 import (
-	"database/sql"
-	"fmt"
+	"movies-golang-api/helpers"
 	"movies-golang-api/models"
 	"movies-golang-api/repository"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,13 +31,10 @@ func IndexCategory(ctx *gin.Context) {
 }
 
 func GetCategory(ctx *gin.Context) {
-
 	// Convert params id from string to int
-	id := ctx.Param("id")
-	categoryId, error := strconv.Atoi(id)
-	checkError(error, "Convert Failed")
+	id := helpers.StrToInt(ctx.Param("id"))
 
-	result := repository.GetCategoryQuery(categoryId)
+	result := repository.GetCategoryQuery(id)
 
 	// If result not found return 404
 	if result.CategoryID == 0 {
@@ -62,28 +57,18 @@ func UpdateCategory(ctx *gin.Context) {
 	}
 
 	// Convert string id param to int
-	id := ctx.Param("id")
-	categoryId, error := strconv.Atoi(id)
-	checkError(error, "Convert Failed")
+	id := helpers.StrToInt(ctx.Param("id"))
 
 	// Checking is there any data with these id
-	var resultId int
-	script := fmt.Sprintf(`SELECT id FROM categories WHERE id = %d`, categoryId)
-	rows := initDb().QueryRow(script)
-	err := rows.Scan(&resultId)
+	checkingResult := repository.GetCategoryQuery(id)
 
 	// If there isn't any data return 404
-	if err != nil && err == sql.ErrNoRows {
+	if checkingResult.CategoryID == 0 {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "data not found",
 		})
 	} else {
-		// If there is match data then update these data
-		script := `UPDATE categories SET categories.category_name = ?, categories.details = ? WHERE id = ?`
-		rows, err := initDb().Query(script, category.CategoryName, category.Details, categoryId)
-		checkError(err, "Query Failed")
-		defer rows.Close()
-		category.CategoryID = int64(categoryId)
+		repository.UpdateCategoryQuery(id, category)
 
 		ctx.JSON(http.StatusOK, category)
 	}
@@ -91,27 +76,19 @@ func UpdateCategory(ctx *gin.Context) {
 
 func DeleteCategory(ctx *gin.Context) {
 	// Convert string id param to int
-	id := ctx.Param("id")
-	categoryId, error := strconv.Atoi(id)
-	checkError(error, "Convert Failed")
+	id := helpers.StrToInt(ctx.Param("id"))
 
 	// Checking is there any data with these id
-	var resultId int
-	script := fmt.Sprintf(`SELECT id FROM categories WHERE id = %d`, categoryId)
-	rows := initDb().QueryRow(script)
-	err := rows.Scan(&resultId)
+	checkingResult := repository.GetCategoryQuery(id)
 
 	// If there isn't any data return 404
-	if err != nil && err == sql.ErrNoRows {
+	if checkingResult.CategoryID == 0 {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "data not found",
 		})
 	} else {
 		// If there is match data then update these data
-		script := `DELETE FROM categories WHERE id = ?`
-		rows, err := initDb().Exec(script, categoryId)
-		checkError(err, "Query Failed")
-		defer rows.RowsAffected()
+		repository.DeleteCategoryQuery(id)
 
 		ctx.JSON(http.StatusNoContent, gin.H{})
 	}
