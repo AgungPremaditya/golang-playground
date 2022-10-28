@@ -14,20 +14,20 @@ type CategoryRepositoryImpl struct {
 func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
 	query := "INSERT INTO categories (category_name, details) VALUES (?, ?)"
 
-	result, err := tx.ExecContext(ctx, query, category.CategoryName, category.Details)
+	result, err := tx.ExecContext(ctx, query, category.Name, category.Details)
 	helpers.CheckError(err)
 
 	id, err := result.LastInsertId()
 	helpers.CheckError(err)
 
-	category.CategoryID = int(id)
+	category.Id = int(id)
 
 	return category
 }
 
 func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
 	query := "UPDATE categories SET categories.category_name = ?, categories.details = ? WHERE id = ?"
-	_, err := tx.ExecContext(ctx, query, category.CategoryName, category.Details, category.CategoryID)
+	_, err := tx.ExecContext(ctx, query, category.Name, category.Details, category.Id)
 	helpers.CheckError(err)
 
 	return category
@@ -35,7 +35,7 @@ func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx
 
 func (repository *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, category domain.Category) {
 	query := "DELETE FROM categories WHERE id = ?"
-	_, err := tx.ExecContext(ctx, query, category.CategoryID)
+	_, err := tx.ExecContext(ctx, query, category.Id)
 	helpers.CheckError(err)
 }
 
@@ -46,7 +46,7 @@ func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.
 
 	category := domain.Category{}
 	if rows.Next() {
-		rows.Scan(&category.CategoryID, &category.CategoryName, &category.Details)
+		rows.Scan(&category.Id, &category.Name, &category.Details)
 		return category, nil
 	} else {
 		return category, errors.New("category not found")
@@ -61,7 +61,7 @@ func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	var categories []domain.Category
 	for rows.Next() {
 		category := domain.Category{}
-		err := rows.Scan(&category.CategoryID, &category.CategoryName, &category.Details)
+		err := rows.Scan(&category.Id, &category.Name, &category.Details)
 		helpers.CheckError(err)
 		categories = append(categories, category)
 	}

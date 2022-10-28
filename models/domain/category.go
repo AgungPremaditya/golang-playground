@@ -1,7 +1,7 @@
 package domain
 
 type Category struct {
-	CategoryID   int    `json:"category_id"`
-	CategoryName string `json:"category_name"`
-	Details      string `json:"details"`
+	Id      int    `json:"category_id"`
+	Name    string `json:"category_name"`
+	Details string `json:"details"`
 }
