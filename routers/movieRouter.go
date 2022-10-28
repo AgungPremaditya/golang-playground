@@ -7,9 +7,12 @@ import (
 )
 
 func MovieRoutes(router *gin.Engine) {
-	router.POST("/movies", controllers.CreateMovie)
-	router.GET("/movies", controllers.IndexMovie)
-	router.GET("/movies/:id", controllers.GetMovie)
-	router.PUT("/movies/:id", controllers.UpdateMovie)
-	router.DELETE("movies/:id", controllers.DeleteMovie)
+	movies := router.Group("/movies")
+	{
+		movies.POST("/", controllers.CreateMovie)
+		movies.GET("/", controllers.IndexMovie)
+		movies.GET("/:id", controllers.GetMovie)
+		movies.PUT("/:id", controllers.UpdateMovie)
+		movies.DELETE("/:id", controllers.DeleteMovie)
+	}
 }
