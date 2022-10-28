@@ -14,7 +14,7 @@ type MovieRepositoryImpl struct {
 func (repository *MovieRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, movie domain.Movie) domain.Movie {
 	query := "INSERT INTO movies (title, rating, details, category_id) VALUES (?, ?, ?, ?)"
 
-	result, err := tx.ExecContext(ctx, query, movie.Title, movie.Rating, movie.Details, movie.CategoryID)
+	result, err := tx.ExecContext(ctx, query, movie.Title, movie.Rating, movie.Details, movie.CategoryId)
 	helpers.CheckError(err)
 
 	id, err := result.LastInsertId()
@@ -27,7 +27,7 @@ func (repository *MovieRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, mov
 
 func (repository *MovieRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, movie domain.Movie) domain.Movie {
 	query := "UPDATE movies SET movies.title = ?, movies.rating = ?, movies.details = ?, movies.category_id = ? WHERE movies.id = ?"
-	_, err := tx.ExecContext(ctx, query, movie.Title, movie.Rating, movie.Details, movie.CategoryID)
+	_, err := tx.ExecContext(ctx, query, movie.Title, movie.Rating, movie.Details, movie.CategoryId)
 	helpers.CheckError(err)
 
 	return movie
@@ -47,7 +47,7 @@ func (repository *MovieRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx,
 
 	movie := domain.MovieWithCategory{}
 	if rows.Next() {
-		rows.Scan(&movie.Id, &movie.Title, &movie.Rating, &movie.Details, &movie.CategoryID, &movie.CategoryName, &movie.CategoryDetails)
+		rows.Scan(&movie.Id, &movie.Title, &movie.Rating, &movie.Details, &movie.CategoryId, &movie.CategoryName, &movie.CategoryDetails)
 		return movie, nil
 	} else {
 		return movie, errors.New("movie not found")
@@ -63,7 +63,7 @@ func (repository *MovieRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) 
 	var movies []domain.MovieWithCategory
 	for rows.Next() {
 		movie := domain.MovieWithCategory{}
-		err := rows.Scan(&movie.Id, &movie.Title, &movie.Rating, &movie.Details, &movie.CategoryID, &movie.CategoryName, &movie.CategoryDetails)
+		err := rows.Scan(&movie.Id, &movie.Title, &movie.Rating, &movie.Details, &movie.CategoryId, &movie.CategoryName, &movie.CategoryDetails)
 		helpers.CheckError(err)
 		movies = append(movies, movie)
 	}

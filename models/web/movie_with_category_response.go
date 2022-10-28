@@ -1,14 +1,6 @@
-package domain
+package web
 
-type Movie struct {
-	Id         int
-	Title      string
-	Rating     int
-	Details    string
-	CategoryId int
-}
-
-type MovieWithCategory struct {
+type MovieWithCategoryResponse struct {
 	Id              int
 	Title           string
 	Rating          int

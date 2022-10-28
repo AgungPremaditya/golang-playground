@@ -12,3 +12,35 @@ func ToCategoryResponse(category domain.Category) web.CategoryResponse {
 		Details: category.Details,
 	}
 }
+
+func ToMovieResponse(movie domain.Movie) web.MovieResponse {
+	return web.MovieResponse{
+		Id:         movie.Id,
+		Title:      movie.Title,
+		Rating:     movie.Rating,
+		Details:    movie.Details,
+		CategoryId: movie.CategoryId,
+	}
+}
+
+func ToMovieWithCategoryResponse(movie domain.MovieWithCategory) web.MovieWithCategoryResponse {
+	return web.MovieWithCategoryResponse{
+		Id:              movie.Id,
+		Title:           movie.Title,
+		Rating:          movie.Rating,
+		Details:         movie.Details,
+		CategoryId:      movie.CategoryId,
+		CategoryName:    movie.CategoryName,
+		CategoryDetails: movie.CategoryDetails,
+	}
+}
+
+func ToMovieDomain(movie domain.MovieWithCategory) domain.Movie {
+	return domain.Movie{
+		Id:         movie.Id,
+		Title:      movie.Title,
+		Rating:     movie.Rating,
+		Details:    movie.Details,
+		CategoryId: movie.CategoryId,
+	}
+}
