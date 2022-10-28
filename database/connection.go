@@ -2,21 +2,21 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	"movies-golang-api/helpers"
+
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func InitDb() *sql.DB {
 	db, err := sql.Open("mysql", "root:password@tcp(localhost:3306)/movie_api")
+	helpers.CheckError(err)
 
-	CheckError(err, "sql.Open failed")
+	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(20)
+	db.SetConnMaxLifetime(60 * time.Minute)
+	db.SetConnMaxIdleTime(10 * time.Minute)
 
 	return db
-}
-
-func CheckError(err error, msg string) {
-	if err != nil {
-		log.Fatalln(msg, err)
-	}
 }

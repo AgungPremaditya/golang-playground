@@ -14,6 +14,13 @@ type CategoryServiceImpl struct {
 	DB                 *sql.DB
 }
 
+func NewCategoryService(categoryRepository repository.CategoryRepository, DB *sql.DB) CategoryService {
+	return &CategoryServiceImpl{
+		CategoryRepository: categoryRepository,
+		DB:                 DB,
+	}
+}
+
 func (service *CategoryServiceImpl) Create(ctx context.Context, request web.CategoryCreateRequest) web.CategoryResponse {
 	tx, err := service.DB.Begin()
 	helpers.CheckError(err)
@@ -24,7 +31,7 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request web.Cate
 		Details: request.Details,
 	}
 
-	service.CategoryRepository.Save(ctx, tx, category)
+	category = service.CategoryRepository.Save(ctx, tx, category)
 
 	return helpers.ToCategoryResponse(category)
 }

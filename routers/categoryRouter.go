@@ -1,16 +1,27 @@
 package routers
 
 import (
+	"movies-golang-api/controllers"
+	"movies-golang-api/database"
+	"movies-golang-api/repository"
+	"movies-golang-api/service"
+
 	"github.com/gin-gonic/gin"
 )
 
 func CategoryRoutes(router *gin.Engine) {
-	// categories := router.Group("/categories")
+
+	db := database.InitDb()
+	categoryRepository := repository.NewCategoryRepository()
+	categoryService := service.NewCategoryService(categoryRepository, db)
+	categoryController := controllers.NewCategoryController(categoryService)
+
+	categories := router.Group("/categories")
 	{
-		// categories.POST("/", controllers.CreateCategory)
-		// categories.GET("/", controllers.IndexCategory)
-		// categories.GET("/:id", controllers.GetCategory)
-		// categories.PUT("/:id", controllers.UpdateCategory)
-		// categories.DELETE("/:id", controllers.DeleteCategory)
+		categories.POST("/", categoryController.Create)
+		categories.GET("/", categoryController.FindAll)
+		categories.GET("/:id", categoryController.FindById)
+		categories.PUT("/:id", categoryController.Update)
+		categories.DELETE("/:id", categoryController.Delete)
 	}
 }
