@@ -3,13 +3,13 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"movies-golang-api/models"
+	"movies-golang-api/models/domain"
 )
 
 type CategoryRepository interface {
-	Save(ctx context.Context, tx *sql.Tx, category models.Category) models.Category
-	Update(ctx context.Context, tx *sql.Tx, category models.Category) models.Category
-	Delete(ctx context.Context, tx *sql.Tx, category models.Category)
-	FindById(ctx context.Context, tx *sql.Tx, categoryId int) models.Category
-	FindAll(ctx context.Context, tx *sql.Tx) []models.Category
+	Save(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category
+	Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category
+	Delete(ctx context.Context, tx *sql.Tx, category domain.Category)
+	FindById(ctx context.Context, tx *sql.Tx, categoryId int) domain.Category
+	FindAll(ctx context.Context, tx *sql.Tx) []domain.Category
 }

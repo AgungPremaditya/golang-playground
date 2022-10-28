@@ -5,13 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"movies-golang-api/helpers"
-	"movies-golang-api/models"
+	"movies-golang-api/models/domain"
 )
 
 type CategoryRepositoryImpl struct {
 }
 
-func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category models.Category) models.Category {
+func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
 	query := "INSERT INTO categories (category_name, details) VALUES (?, ?)"
 
 	result, err := tx.ExecContext(ctx, query, category.CategoryName, category.Details)
@@ -25,7 +25,7 @@ func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, 
 	return category
 }
 
-func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category models.Category) models.Category {
+func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
 	query := "UPDATE categories SET categories.category_name = ?, categories.details = ? WHERE id = ?"
 	_, err := tx.ExecContext(ctx, query, category.CategoryName, category.Details, category.CategoryID)
 	helpers.CheckError(err)
@@ -33,18 +33,18 @@ func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx
 	return category
 }
 
-func (repository *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, category models.Category) {
+func (repository *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, category domain.Category) {
 	query := "DELETE FROM categories WHERE id = ?"
 	_, err := tx.ExecContext(ctx, query, category.CategoryID)
 	helpers.CheckError(err)
 }
 
-func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) (models.Category, error) {
+func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) (domain.Category, error) {
 	query := "SELECT * FROM categories WHERE id = ?"
 	rows, err := tx.QueryContext(ctx, query, categoryId)
 	helpers.CheckError(err)
 
-	category := models.Category{}
+	category := domain.Category{}
 	if rows.Next() {
 		rows.Scan(&category.CategoryID, &category.CategoryName, &category.Details)
 		return category, nil
@@ -53,14 +53,14 @@ func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	}
 }
 
-func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []models.Category {
+func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Category {
 	query := `SELECT * FROM categories`
 	rows, err := tx.QueryContext(ctx, query)
 	helpers.CheckError(err)
 
-	var categories []models.Category
+	var categories []domain.Category
 	for rows.Next() {
-		category := models.Category{}
+		category := domain.Category{}
 		err := rows.Scan(&category.CategoryID, &category.CategoryName, &category.Details)
 		helpers.CheckError(err)
 		categories = append(categories, category)
