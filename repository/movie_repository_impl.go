@@ -11,6 +11,10 @@ import (
 type MovieRepositoryImpl struct {
 }
 
+func NewMovieRepository() MovieRepository {
+	return &MovieRepositoryImpl{}
+}
+
 func (repository *MovieRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, movie domain.Movie) domain.Movie {
 	query := "INSERT INTO movies (title, rating, details, category_id) VALUES (?, ?, ?, ?)"
 
@@ -27,7 +31,7 @@ func (repository *MovieRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, mov
 
 func (repository *MovieRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, movie domain.Movie) domain.Movie {
 	query := "UPDATE movies SET movies.title = ?, movies.rating = ?, movies.details = ?, movies.category_id = ? WHERE movies.id = ?"
-	_, err := tx.ExecContext(ctx, query, movie.Title, movie.Rating, movie.Details, movie.CategoryId)
+	_, err := tx.ExecContext(ctx, query, movie.Title, movie.Rating, movie.Details, movie.CategoryId, movie.Id)
 	helpers.CheckError(err)
 
 	return movie

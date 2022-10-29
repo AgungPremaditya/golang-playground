@@ -14,6 +14,13 @@ type MovieServiceImpl struct {
 	DB              *sql.DB
 }
 
+func NewMovieService(movieRepository repository.MovieRepository, DB *sql.DB) MovieService {
+	return &MovieServiceImpl{
+		MovieRepository: movieRepository,
+		DB:              DB,
+	}
+}
+
 func (service *MovieServiceImpl) Create(ctx context.Context, request web.MovieCreateRequest) web.MovieResponse {
 	tx, err := service.DB.Begin()
 	helpers.CheckError(err)
