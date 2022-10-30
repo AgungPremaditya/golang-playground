@@ -7,21 +7,28 @@ import (
 	"movies-golang-api/models/domain"
 	"movies-golang-api/models/web"
 	"movies-golang-api/repository"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type CategoryServiceImpl struct {
 	CategoryRepository repository.CategoryRepository
 	DB                 *sql.DB
+	Validate           *validator.Validate
 }
 
-func NewCategoryService(categoryRepository repository.CategoryRepository, DB *sql.DB) CategoryService {
+func NewCategoryService(categoryRepository repository.CategoryRepository, DB *sql.DB, validate *validator.Validate) CategoryService {
 	return &CategoryServiceImpl{
 		CategoryRepository: categoryRepository,
 		DB:                 DB,
+		Validate:           validate,
 	}
 }
 
 func (service *CategoryServiceImpl) Create(ctx context.Context, request web.CategoryCreateRequest) web.CategoryResponse {
+	err := service.Validate.Struct(request)
+	helpers.CheckError(err)
+
 	tx, err := service.DB.Begin()
 	helpers.CheckError(err)
 	defer helpers.CommitOrRollback(tx)
@@ -37,6 +44,9 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request web.Cate
 }
 
 func (service *CategoryServiceImpl) Update(ctx context.Context, request web.CategoryUpdateRequest) web.CategoryResponse {
+	err := service.Validate.Struct(request)
+	helpers.CheckError(err)
+
 	tx, err := service.DB.Begin()
 	helpers.CheckError(err)
 	defer helpers.CommitOrRollback(tx)

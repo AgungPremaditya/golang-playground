@@ -7,13 +7,15 @@ import (
 	"movies-golang-api/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 func CategoryRoutes(router *gin.Engine) {
+	validate := validator.New()
 
 	db := database.InitDb()
 	categoryRepository := repository.NewCategoryRepository()
-	categoryService := service.NewCategoryService(categoryRepository, db)
+	categoryService := service.NewCategoryService(categoryRepository, db, validate)
 	categoryController := controllers.NewCategoryController(categoryService)
 
 	categories := router.Group("/categories")

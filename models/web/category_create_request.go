@@ -1,6 +1,6 @@
 package web
 
 type CategoryCreateRequest struct {
-	Name    string
+	Name    string `validate:"required"`
 	Details string
 }
