@@ -7,12 +7,15 @@ import (
 	"movies-golang-api/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 func MovieRoutes(router *gin.Engine) {
+	validate := validator.New()
 	db := database.InitDb()
+
 	movieRepository := repository.NewMovieRepository()
-	movieService := service.NewMovieService(movieRepository, db)
+	movieService := service.NewMovieService(movieRepository, db, validate)
 	movieController := controllers.NewMovieController(movieService)
 
 	movies := router.Group("/movies")

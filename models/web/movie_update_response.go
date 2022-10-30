@@ -2,8 +2,8 @@ package web
 
 type MovieUpdateRequest struct {
 	Id         int
-	Title      string
-	Rating     int
+	Title      string `validate:"required"`
+	Rating     int    `validate:"required"`
 	Details    string
-	CategoryId int
+	CategoryId int `validate:"required"`
 }

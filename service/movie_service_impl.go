@@ -7,21 +7,28 @@ import (
 	"movies-golang-api/models/domain"
 	"movies-golang-api/models/web"
 	"movies-golang-api/repository"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type MovieServiceImpl struct {
 	MovieRepository repository.MovieRepository
 	DB              *sql.DB
+	Validate        *validator.Validate
 }
 
-func NewMovieService(movieRepository repository.MovieRepository, DB *sql.DB) MovieService {
+func NewMovieService(movieRepository repository.MovieRepository, DB *sql.DB, validate *validator.Validate) MovieService {
 	return &MovieServiceImpl{
 		MovieRepository: movieRepository,
 		DB:              DB,
+		Validate:        validate,
 	}
 }
 
 func (service *MovieServiceImpl) Create(ctx context.Context, request web.MovieCreateRequest) web.MovieResponse {
+	err := service.Validate.Struct(request)
+	helpers.CheckError(err)
+
 	tx, err := service.DB.Begin()
 	helpers.CheckError(err)
 	defer helpers.CommitOrRollback(tx)
@@ -39,6 +46,9 @@ func (service *MovieServiceImpl) Create(ctx context.Context, request web.MovieCr
 }
 
 func (service *MovieServiceImpl) Update(ctx context.Context, request web.MovieUpdateRequest) web.MovieResponse {
+	err := service.Validate.Struct(request)
+	helpers.CheckError(err)
+
 	tx, err := service.DB.Begin()
 	helpers.CheckError(err)
 	defer helpers.CommitOrRollback(tx)
